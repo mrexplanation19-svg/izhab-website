@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wishlist - IZHAB</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="nav-links">
+  <a href="index.html">🏠 Home</a>
+  <a href="cart.html">🛒 Cart</a>
+</div>
+
+<h1 class="page-title">My Wishlist ❤️</h1>
+
+<div id="wishlistItems" class="grid"></div>
+
+<script>
+let wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+let container = document.getElementById("wishlistItems");
+
+function loadWishlist(){
+  container.innerHTML = "";
+
+  wishlist.forEach((item, index) => {
+    container.innerHTML += `
+      <div class="card">
+        <h3>${item.name}</h3>
+        <p>৳ ${item.price}</p>
+
+        <button onclick="removeItem(${index})">❌ Remove</button>
+        <button onclick="moveToCart(${index})">🛒 Move to Cart</button>
+      </div>
+    `;
+  });
+}
+
+function removeItem(index){
+  wishlist.splice(index,1);
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  loadWishlist();
+}
+
+function moveToCart(index){
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  cart.push(wishlist[index]);
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  removeItem(index);
+}
+
+loadWishlist();
+</script>
+
+</body>
+</html>

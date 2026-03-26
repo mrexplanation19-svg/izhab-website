@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account - IZHAB</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="nav-links">
+  <a href="index.html">🏠 Home</a>
+</div>
+
+<h1 class="page-title">Account 🔐</h1>
+
+<!-- 🔐 LOGIN / REGISTER -->
+<div id="authBox" class="account-box">
+
+  <h2>Login</h2>
+  <input type="text" id="loginUser" placeholder="Username">
+  <input type="password" id="loginPass" placeholder="Password">
+  <button onclick="login()">Login</button>
+
+  <hr>
+
+  <h2>Register</h2>
+  <input type="text" id="regUser" placeholder="Username">
+  <input type="password" id="regPass" placeholder="Password">
+  <button onclick="register()">Register</button>
+
+</div>
+
+<!-- 👤 PROFILE VIEW -->
+<div id="profileBox" class="account-box" style="display:none; text-align:center;">
+
+  <h2>👤 My Profile</h2>
+
+  <img id="profilePic" src="" alt="Profile" style="width:100px; height:100px; border-radius:50%; border:2px solid gold;">
+
+  <input type="file" id="uploadPic">
+  <button onclick="savePic()">Upload Photo</button>
+
+  <p id="profileName"></p>
+  <p id="profileId"></p>
+  <h3>📦 Order History</h3>
+  <div id="orderHistory"></div>
+  <button onclick="logout()">🚪 Logout</button>
+
+</div>
+<script>
+
+// 🆔 random user ID generator
+function generateUserId(){
+  return "IZHAB-" + Math.floor(Math.random()*100000);
+}
+
+// 🔐 Register
+function register(){
+  let user = document.getElementById("regUser").value;
+  let pass = document.getElementById("regPass").value;
+
+  if(!user || !pass){
+    alert("Fill all fields!");
+    return;
+  }
+
+  let userId = generateUserId();
+
+  localStorage.setItem("user", JSON.stringify({user, pass, userId}));
+
+  alert("Registered successfully! Your ID: " + userId);
+}
+
+// 🔓 Login
+function login(){
+  let user = document.getElementById("loginUser").value;
+  let pass = document.getElementById("loginPass").value;
+
+  let saved = JSON.parse(localStorage.getItem("user"));
+
+  if(saved && user === saved.user && pass === saved.pass){
+    localStorage.setItem("loggedIn", "true");
+    localStorage.setItem("username", user);
+
+    location.reload();
+  } else {
+    alert("Invalid login!");
+  }
+}
+
+// 🚪 Logout
+function logout(){
+  localStorage.removeItem("loggedIn");
+  location.reload();
+}
+
+// 👤 Profile show logic
+window.addEventListener("load", () => {
+
+  let isLoggedIn = localStorage.getItem("loggedIn");
+  let saved = JSON.parse(localStorage.getItem("user"));
+
+  if(isLoggedIn === "true" && saved){
+
+    document.getElementById("authBox").style.display = "none";
+    document.getElementById("profileBox").style.display = "block";
+
+    document.getElementById("profileName").innerText = "Name: " + saved.user;
+    document.getElementById("profileId").innerText = "User ID: " + saved.userId;
+
+    // 👇 EIKHANE ADD KORBI 🔥
+    loadOrders();
+
+    // 🔥 EIKHANE PROFILE PIC LOAD
+    let savedPic = localStorage.getItem("profilePic");
+
+    if(savedPic){
+      document.getElementById("profilePic").src = savedPic;
+    }
+
+  }
+
+});
+function savePic(){
+  let file = document.getElementById("uploadPic").files[0];
+
+  let reader = new FileReader();
+
+  reader.onload = function(){
+    localStorage.setItem("profilePic", reader.result);
+    document.getElementById("profilePic").src = reader.result;
+  }
+
+  if(file){
+    reader.readAsDataURL(file);
+  }
+}
+function loadOrders(){
+
+  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  let container = document.getElementById("orderHistory");
+
+  container.innerHTML = "";
+
+  orders.forEach(order => {
+
+    let itemsText = "";
+
+    order.items.forEach(i => {
+      itemsText += i.name + " (৳" + i.price + ")<br>";
+    });
+
+    container.innerHTML += `
+      <div style="border:1px solid gold; margin:10px; padding:10px;">
+        <p>${itemsText}</p>
+        <small>${order.date}</small>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
